@@ -39,7 +39,9 @@ class Server {
     middlewares() {
 
         // CORS
-        this.app.use( cors() );
+        this.app.use( cors( {
+			origin: ['http://localhost:3001/', 'https://log-api-lwc.herokuapp.com/', 'http://log-api-lwc.herokuapp.com/'];
+		} ) );
 
         // Lectura y parseo del body
         this.app.use( express.json() );
