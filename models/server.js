@@ -40,7 +40,7 @@ class Server {
 
         // CORS
         this.app.use( cors( {
-			origin: ['http://localhost:3001/', 'https://log-api-lwc.herokuapp.com/', 'http://log-api-lwc.herokuapp.com/']
+			origin: ['http://localhost:3001', 'https://log-api-lwc.herokuapp.com/', 'http://log-api-lwc.herokuapp.com']
 		} ) );
 
         // Lectura y parseo del body
