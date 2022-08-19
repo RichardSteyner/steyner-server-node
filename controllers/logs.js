@@ -62,19 +62,19 @@ const crearLog = async(req, res = response ) => {
             });
         }
 
-        /*let usuario;
+        let usuario;
         if(req.usuario) {
             usuario = req.usuario._id;
         } else {
             const usuarioDB = await Usuario.findOne({correo: 'steyner.urupeque.s@gmail.com'});
             usuario = usuarioDB._id;
-        }*/
+        }
 
         // Generar la data a guardar
         const data = {
             ...body,
-            titulo//,
-            //usuario 
+            titulo,
+            usuario 
         }
 
         const log = new Log( data );
