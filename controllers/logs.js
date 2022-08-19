@@ -65,8 +65,8 @@ const crearLog = async(req, res = response ) => {
         // Generar la data a guardar
         const data = {
             ...body,
-            titulo,
-            usuario: req.usuario._id
+            titulo
+            //usuario: req.usuario._id
         }
 
         const log = new Log( data );
@@ -94,7 +94,7 @@ const actualizarLog = async( req, res = response ) => {
             data.titulo  = data.titulo.toUpperCase();
         }
 
-        data.usuario = req.usuario._id;
+        //data.usuario = req.usuario._id;
 
         const log = await Log.findByIdAndUpdate(id, data, { new: true });
 
