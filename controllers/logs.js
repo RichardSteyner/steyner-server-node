@@ -1,5 +1,5 @@
 const { response } = require('express');
-const { Log } = require('../models');
+const { Log, Usuario } = require('../models');
 
 
 const obtenerLogs = async(req, res = response ) => {
@@ -62,11 +62,19 @@ const crearLog = async(req, res = response ) => {
             });
         }
 
+        /*let usuario;
+        if(req.usuario) {
+            usuario = req.usuario._id;
+        } else {
+            const usuarioDB = await Usuario.findOne({correo: 'steyner.urupeque.s@gmail.com'});
+            usuario = usuarioDB._id;
+        }*/
+
         // Generar la data a guardar
         const data = {
             ...body,
-            titulo
-            //usuario: req.usuario._id
+            titulo//,
+            //usuario 
         }
 
         const log = new Log( data );
