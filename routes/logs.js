@@ -26,9 +26,9 @@ router.get('/:id',[
     validarCampos,
 ], obtenerLog );
 
-// Crear log - privado - cualquier persona con un token válido (por ahora público)
+// Crear log - privado - cualquier persona con un token válido
 router.post('/', [ 
-    //validarJWT,
+    validarJWT,
     check('titulo','El titulo es obligatorio').not().isEmpty(),
     check('tipo','El tipo es obligatorio').not().isEmpty(),
     check('detalleTipo','El detalle tipo es obligatorio').not().isEmpty(),
@@ -37,9 +37,9 @@ router.post('/', [
     validarCampos
 ], crearLog );
 
-// Actualizar log - privado - cualquiera con token válido (por ahora público)
+// Actualizar log - privado - cualquiera con token válido
 router.put('/:id',[
-    //validarJWT,
+    validarJWT,
     check('titulo','El titulo es obligatorio').not().isEmpty(),
     check('tipo','El tipo es obligatorio').not().isEmpty(),
     check('detalleTipo','El detalle tipo es obligatorio').not().isEmpty(),
