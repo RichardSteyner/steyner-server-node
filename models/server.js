@@ -24,9 +24,6 @@ class Server {
         // Conectar a base de datos
         this.conectarDB();
 
-        // Rutas de mi aplicación
-        this.routes();
-
         // Middlewares
         this.middlewares();
     }
@@ -45,6 +42,9 @@ class Server {
 
         // Lectura y parseo del body
         this.app.use( express.json() );
+
+        // Rutas de mi aplicación
+        this.routes();
 
         // Directorio Público
         this.app.use( express.static('public') );
