@@ -24,11 +24,11 @@ class Server {
         // Conectar a base de datos
         this.conectarDB();
 
-        // Middlewares
-        this.middlewares();
-
         // Rutas de mi aplicación
         this.routes();
+
+        // Middlewares
+        this.middlewares();
     }
 
     async conectarDB() {
@@ -48,6 +48,13 @@ class Server {
 
         // Directorio Público
         this.app.use( express.static('public') );
+
+        const path = require('path');
+        this.app.get('*', (req, res) => {
+            res.sendFile(
+                path.resolve(path.join(__dirname, "../"), 'public', 'index.html')
+            );
+        });
 
         // Fileupload - Carga de archivos
         this.app.use( fileUpload({
