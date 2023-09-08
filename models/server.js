@@ -38,7 +38,12 @@ class Server {
 
         // CORS
         this.app.use( cors( {
-			origin: ['http://localhost', 'https://log-api-lwc.herokuapp.com', 'http://log-api-lwc.herokuapp.com', 'http://localhost:4200', 'http://log-app-production.up.railway.app', 'https://log-app-production.up.railway.app']
+			origin: [
+                    'http://localhost', 'http://localhost:4200',
+                    'https://log-api-lwc.herokuapp.com', 'http://log-api-lwc.herokuapp.com', 
+                    'http://log-app-production.up.railway.app', 'https://log-app-production.up.railway.app',
+                    'https://www.codifacil.club', 'http://www.codifacil.club'
+                ]
 		} ) );
 
         // Lectura y parseo del body
