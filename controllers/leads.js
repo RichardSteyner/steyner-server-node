@@ -2,6 +2,8 @@ const { response, request } = require('express');
 
 const Lead = require('../models/lead');
 
+const { sendEmail } = require('../helpers/send-email');
+
 
 const leadsGet = async(req = request, res = response) => {
     try{
@@ -40,6 +42,13 @@ const leadsPost = async(req, res = response) => {
         }
 
         //test get leads and send email
+        sendEmail({
+            toAddress: ['steyner.urupeque.s@gmail.com'],
+            subject: 'New Lead!',
+            body: `<h1>New Lead</h1>
+                    <p>${name} ${email} ${category}</p>
+                    <p>${comments}</p>`
+        })
 
         res.json({
             leadDB
