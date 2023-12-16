@@ -19,6 +19,7 @@ class Server {
             uploads:    '/api/uploads',
             logs:    '/api/logs',
             leads:    '/api/leads',
+            pocs:    '/api/pocs',
         }
 
 
@@ -81,6 +82,7 @@ class Server {
         this.app.use( this.paths.uploads, require('../routes/uploads'));
         this.app.use( this.paths.logs, require('../routes/logs'));
         this.app.use( this.paths.leads, require('../routes/leads'));
+        this.app.use( this.paths.pocs, require('../routes/pocs'));
     }
 
     listen() {
