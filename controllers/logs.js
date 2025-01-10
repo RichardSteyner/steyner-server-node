@@ -6,7 +6,7 @@ const obtenerLogs = async(req, res = response ) => {
 
     try {
 
-        const { limite = 10, desde = 0 } = req.query;
+        const { limite = 10, desde = 0, sort = "titulo", order = "desc" } = req.query;
         const query = { vigencia: true };
 
         const [ total, logs ] = await Promise.all([
@@ -15,6 +15,7 @@ const obtenerLogs = async(req, res = response ) => {
                 .populate('usuario', 'nombre')
                 .skip( Number( desde ) )
                 .limit(Number( limite ))
+				.sort({ [sort]: order })
         ]);
 
         res.json({
