@@ -44,7 +44,8 @@ class Server {
                     'https://log-api-lwc.herokuapp.com', 'http://log-api-lwc.herokuapp.com', 
                     'http://log-app-production.up.railway.app', 'https://log-app-production.up.railway.app',
                     'https://www.codifacil.club', 'http://www.codifacil.club',
-					'https://stackblitz.com'
+					'https://stackblitz.com',
+					'https://zp1v56uxy8rdx5ypatb0ockcb9tr6a-oci3--5173--d20a0a75.local-credentialless.webcontainer-api.io/'
                 ]
 		} ) );
 
