@@ -39,10 +39,13 @@ const pocsGet = async(req = request, res = response) => {
 
 const pocsPost = async(req, res = response) => {
     try{
-        const { base64File } = req.body;
+        const body = req.body;
+
+		console.log('body', body);
 
         res.json({
-            msg: 'Error al instalar vosk y "npm install --global --production windows-build-tools"'           
+            msg: 'Error al instalar vosk y "npm install --global --production windows-build-tools"',
+			body: JSON.stringify(body)         
         });
     } catch(err) {
         console.log(err);
