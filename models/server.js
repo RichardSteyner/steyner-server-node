@@ -84,7 +84,7 @@ class Server {
         this.app.use( this.paths.logs, require('../routes/logs'));
         this.app.use( this.paths.leads, require('../routes/leads'));
         this.app.use( this.paths.pocs, require('../routes/pocs'));
-		this.app.use( this.paths.wsp, require('../routes/webhooks-wsp'));
+		this.app.use( this.paths.wsp, require('../routes/webhooks-wsp.js'));
     }
 
     listen() {
