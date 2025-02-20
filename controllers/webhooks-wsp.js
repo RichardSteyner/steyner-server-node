@@ -30,6 +30,7 @@ const wspPost = async(req, res = response) => {
         const body = req.body;
 
 		console.log('body', body);
+		console.log('body string', JSON.stringify(body));
 
         res.json({
             body: JSON.stringify(body)       
