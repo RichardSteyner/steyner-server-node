@@ -7,7 +7,7 @@
     "start": "node app"
   },
   "engines": {
-    "node": ">=15.0.0"
+    "node": "22.x"
   },
   "keywords": [],
   "author": "",
