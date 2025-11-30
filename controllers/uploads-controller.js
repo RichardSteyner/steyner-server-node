@@ -62,6 +62,71 @@ class UploadController {
       });
     }
   }
+
+
+  // 1. Iniciar
+  async initSession(req, res = response) {
+    try {
+      const { filename, fileSize, totalChunks, mimeType } = req.body;
+      if (!filename || !fileSize || !totalChunks) {
+		console.log('Datos incompletos en initSession:', req.body);
+        return res.status(400).json({ success: false, error: 'Faltan datos requeridos' });
+      }
+
+      const result = await uploadService.initSession({ filename, fileSize, totalChunks, mimeType });
+      res.status(201).json({ success: true, data: result });
+    } catch (error) {
+		  console.error('Error en initSession:', error);		
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  // 2. Recibir Chunk
+  async uploadSessionChunk(req, res) {
+    try {
+      // req.file viene de Multer configurado en app.js
+      const { uploadId, chunkIndex, hash } = req.body;
+      
+      if (!req.file || !uploadId || chunkIndex === undefined) {
+        return res.status(400).json({ success: false, error: 'Datos incompletos' });
+      }
+
+      const status = await uploadService.processChunk({ 
+        uploadId, 
+        chunkIndex, 
+        file: req.file, 
+        hash 
+      });
+
+      res.status(200).json({ success: true, data: status });
+
+    } catch (error) {
+      // Manejo de errores específicos
+      if (error.message === 'SESSION_NOT_FOUND') return res.status(404).json({ success: false, error: 'Sesión no existe o expiró' });
+      if (error.message === 'HASH_MISMATCH') return res.status(400).json({ success: false, error: 'Chunk corrupto (Hash mismatch)' });
+      
+      console.error(error);
+      res.status(500).json({ success: false, error: 'Error interno' });
+    }
+  }
+
+  // 3. Completar
+  async completeSession(req, res) {
+    try {
+      const { uploadId, finalHash } = req.body;
+      if (!uploadId) return res.status(400).json({ success: false, error: 'Falta uploadId' });
+
+      const result = await uploadService.completeUpload(uploadId, finalHash);
+      res.status(200).json({ success: true, message: 'Archivo ensamblado correctamente', data: result });
+
+    } catch (error) {
+      if (error.message === 'MISSING_CHUNKS') return res.status(400).json({ success: false, error: 'Faltan chunks por subir' });
+      if (error.message === 'FINAL_HASH_MISMATCH') return res.status(400).json({ success: false, error: 'Archivo final corrupto' });
+      
+      console.error(error);
+      res.status(500).json({ success: false, error: 'Error al ensamblar archivo' });
+    }
+  }
 }
 
 module.exports = new UploadController();
