@@ -6,6 +6,9 @@
   "scripts": {
     "start": "node app"
   },
+  "engines": {
+    "node": ">=15.0.0"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
