@@ -3,6 +3,7 @@ const cors = require('cors');
 const fileUpload = require('express-fileupload');
 
 const { dbConnection } = require('../database/config');
+const { v2 } = require('cloudinary');
 
 class Server {
 
@@ -21,6 +22,7 @@ class Server {
             leads:    '/api/leads',
             pocs:    '/api/pocs',
             wsp:    '/api/webhooks-wsp',
+			uploadsV2: '/api/uploads-v2'
         }
 
 
@@ -85,6 +87,7 @@ class Server {
         this.app.use( this.paths.leads, require('../routes/leads'));
         this.app.use( this.paths.pocs, require('../routes/pocs'));
 		this.app.use( this.paths.wsp, require('../routes/webhooks-wsp.js'));
+		this.app.use( this.paths.uploadsV2, require('../routes/upload-route'));
     }
 
     listen() {

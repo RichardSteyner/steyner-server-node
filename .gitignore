@@ -6,6 +6,8 @@ node_modules/
 
 uploads/productos/**.*
 uploads/usuarios/**.*
+uploads/
+uploads-v2/
 
 *.mp3
 *.wav
