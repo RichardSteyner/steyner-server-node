@@ -1,6 +1,7 @@
 const { response } = require('express');
 const { Log, Usuario } = require('../models');
 
+const sfService = require('./../integrations/SalesforceIngestionService');
 
 const obtenerLogs = async(req, res = response ) => {
 
@@ -39,6 +40,8 @@ const obtenerLog = async(req, res = response ) => {
                                 .populate('usuario', 'nombre');
 
         res.json( log );
+
+
 
     } catch(err) {
         console.error(err);
@@ -85,6 +88,8 @@ const crearLog = async(req, res = response ) => {
 
         res.status(201).json(log);
 
+        sfService.add(log);
+
     } catch(err) {
         console.error(err);
         res.status(500).json({ msj: 'Contacte con su administrador' });        
@@ -108,6 +113,8 @@ const actualizarLog = async( req, res = response ) => {
         const log = await Log.findByIdAndUpdate(id, data, { new: true });
 
         res.json( log );
+
+        sfService.add(log);
 
     } catch(err) {
         console.error(err);
