@@ -9,6 +9,7 @@ class SalesforceIngestionService {
         this.client_id = process.env.SF_CLIENT_ID;
         this.client_secret = process.env.SF_CLIENT_SECRET;
         this.tenantUrl = process.env.SF_TENANT_URL || 'https://login.salesforce.com';
+        this.ingestionApiUrl = process.env.SF_INGESTION_API_URL;
         this.apiName = 'LOGS_INGESTION_API';
         this.objectName = 'Logs';
 
@@ -43,7 +44,7 @@ class SalesforceIngestionService {
     add(logCodi) {
         // Mapeamos el objeto para que coincida exactamente con el esquema YAML
         const recordLogCodi = {
-            idMongo: logCodi._id.toString(),
+            idMongo: logCodi._id,
             title: logCodi.titulo,
             type: logCodi.tipo,
             subType: logCodi.detalleTipo,
@@ -87,7 +88,7 @@ class SalesforceIngestionService {
         
         try {
             const token = await this._getAccessToken();
-            const endpoint = `${this.tenantUrl}/api/v1/ingest/sources/${this.apiName}/${this.objectName}`;
+            const endpoint = `${this.ingestionApiUrl}/api/v1/ingest/sources/${this.apiName}/${this.objectName}`;
 
             const payload = { data: recordsToSend };
 
@@ -100,13 +101,14 @@ class SalesforceIngestionService {
                 body: JSON.stringify(payload)
             });
 
-            if (!response.ok) {
+            console.log(`[Salesforce Response ${response.status}]:`, await response.status);    
+
+            if (!response.status.toString().startsWith('2')) {
                 const errorText = await response.text();
                 console.error(`[Salesforce Error ${response.status}]:`, errorText);
             } else {
                 console.log(`[Salesforce Success]: Sent ${recordsToSend.length} records correctly.`);
             }
-
         } catch (error) {
             console.error('[Salesforce Connection Error]: No se pudo procesar el lote.', error);
         }

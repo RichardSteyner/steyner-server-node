@@ -1,0 +1,38 @@
+openapi: 3.0.3
+info:
+  title: API Ingestion Logs Codifacil NodeJs
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    Logs:
+      type: object
+      properties:
+        idMongo:
+          type: string
+          maxLength: 255
+        title:
+          type: string
+          maxLength: 255
+        type:
+          type: string
+          maxLength: 255
+        subType:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 5000
+        solution:
+          type: string
+          maxLength: 6000
+        keyCode:
+          type: string
+          maxLength: 65535
+      required:
+        - idMongo
+        - title
+        - type
+        - subType
+        - description
+        - solution
