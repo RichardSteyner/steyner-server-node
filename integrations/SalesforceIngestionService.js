@@ -1,3 +1,5 @@
+const { generateAssertion } = require('./generateAssertion');
+
 class SalesforceIngestionService {
     constructor() {
         this.queue = [];
@@ -16,28 +18,88 @@ class SalesforceIngestionService {
         this.initTimeout();
     }
 
-    // 1. Método para obtener el Token de acceso directamente de Salesforce
+    //Ejemplo de Obtener Token de SF con client id y client secret
     async _getAccessToken() {
-        const loginUrl = `${this.tenantUrl}/services/oauth2/token`;
-        const params = new URLSearchParams({
+        const loginSFUrl = `${this.tenantUrl}/services/oauth2/token`;
+        const assertionStr = this._buildJwtAssertion();
+        const paramsSF = new URLSearchParams({
             grant_type: 'client_credentials',
             client_id: this.client_id,
             client_secret: this.client_secret
         });
 
-        const response = await fetch(loginUrl, {
+        const responseSF = await fetch(loginSFUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: params
+            body: paramsSF
         });
 
-        if (!response.ok) {
-            console.log(`Error obteniendo token: ${response.statusText}`);
-            throw new Error(`Error obteniendo token: ${response.statusText}`);
+        if (!responseSF.ok) {
+            console.log(`Error obteniendo token: ${responseSF.statusText}`);
+            throw new Error(`Error obteniendo token: ${responseSF.statusText}`);
         }
 
-        const data = await response.json();
-        return data.access_token;
+        const dataSF = await responseSF.json();
+        console.log(dataSF);
+        return dataSF.access_token;
+    }
+
+    // Generación de assertion JWT firmado con RS256
+    _buildJwtAssertion() {
+        const privateKeyPEM = Buffer.from(process.env.SF_JWT_PRIVATE_KEY, 'base64').toString('utf-8');
+        return generateAssertion({
+            iss: this.client_id,
+            sub: process.env.USER_INTEGRATION,
+            aud: `${this.tenantUrl}`,
+            expiresIn: '3m',
+            privateKey: privateKeyPEM 
+        });
+    }
+
+    // 1. Método para obtener el Token de acceso directamente de Salesforce con JWT y luego obtener el token de Data 360
+    async _getAccessTokenDataCloud() {
+        const loginSFUrl = `${this.tenantUrl}/services/oauth2/token`;
+        const assertionStr = this._buildJwtAssertion();
+        const paramsSF = new URLSearchParams({
+            grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+            assertion: assertionStr
+        });
+
+        const responseSF = await fetch(loginSFUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: paramsSF
+        });
+
+        if (!responseSF.ok) {
+            console.log(`Error obteniendo token: ${responseSF.statusText}`);
+            throw new Error(`Error obteniendo token: ${responseSF.statusText}`);
+        }
+
+        const dataSF = await responseSF.json();
+        const accessTokenSF = dataSF.access_token;
+
+        const loginA360Url = `${this.tenantUrl}/services/a360/token`;
+        const paramsA360SF = new URLSearchParams({
+            grant_type: 'urn:salesforce:grant-type:external:cdp',
+            subject_token: accessTokenSF,
+            subject_token_type: 'urn:ietf:params:oauth:token-type:access_token'
+        });
+
+        const responseA360 = await fetch(loginA360Url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: paramsA360SF
+        });
+
+        if (!responseSF.ok) {
+            console.log(`Error obteniendo token de Data 360: ${responseA360.statusText}`);
+            throw new Error(`Error obteniendo token: ${responseA360.statusText}`);
+        }
+
+        const dataA360 = await responseA360.json();
+        console.log(dataA360);
+        return dataA360.access_token;
     }
 
     // 2. Método público para agregar registros a la cola (Es instantáneo, no bloquea al usuario)
@@ -87,7 +149,7 @@ class SalesforceIngestionService {
         const recordsToSend = this.queue.splice(0, this.batchSize);
         
         try {
-            const token = await this._getAccessToken();
+            const token = await this._getAccessTokenDataCloud();
             const endpoint = `${this.ingestionApiUrl}/api/v1/ingest/sources/${this.apiName}/${this.objectName}`;
 
             const payload = { data: recordsToSend };
@@ -101,11 +163,12 @@ class SalesforceIngestionService {
                 body: JSON.stringify(payload)
             });
 
-            console.log(`[Salesforce Response ${response.status}]:`, await response.status);    
+            const responseRaw = await response.text();
+
+            console.log(`[Salesforce Response ${response.status}]:`, response.statusText);    
 
             if (!response.status.toString().startsWith('2')) {
-                const errorText = await response.text();
-                console.error(`[Salesforce Error ${response.status}]:`, errorText);
+                console.error(`[Salesforce Error]: Failed to send ${recordsToSend.length} records. Response:`, responseRaw);
             } else {
                 console.log(`[Salesforce Success]: Sent ${recordsToSend.length} records correctly.`);
             }
