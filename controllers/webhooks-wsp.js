@@ -84,18 +84,27 @@ async function enviarMensajeWhatsApp(toRealNumber, textResponse) {
         }
     };
 
-    const config = {
-        headers: {
-            'Authorization': `Bearer ${WA_ACCESS_TOKEN}`,
-            'Content-Type': 'application/json'
-        }
+    const headers = {
+        'Authorization': `Bearer ${WA_ACCESS_TOKEN}`,
+        'Content-Type': 'application/json'
     };
 
     try {
-        const response = await axios.post(url, data, config);
+        const response = await fetch(url, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(data)
+        });
+
+        const responseText = await response.text();
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${responseText}`);
+        }
+
         console.log(`[Meta API] Respuesta enviada con éxito al número ${toRealNumber}`);
     } catch (error) {
-        console.error("[Meta API] Error al enviar el mensaje:", error.response?.data || error.message);
+        console.error("[Meta API] Error al enviar el mensaje:", error.message);
     }
 }
 
