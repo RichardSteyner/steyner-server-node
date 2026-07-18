@@ -71,7 +71,7 @@ async function enviarMensajeWhatsApp(toRealNumber, textResponse) {
     const WA_PHONE_NUMBER_ID = process.env.WA_PHONE_NUMBER_ID;
     const WA_ACCESS_TOKEN = process.env.WA_ACCESS_TOKEN;
 
-    const url = `https://facebook.com${WA_PHONE_NUMBER_ID}/messages`;
+    const url = `https://graph.facebook.com/v25.0/${WA_PHONE_NUMBER_ID}/messages`;
     
     const data = {
         messaging_product: "whatsapp",
