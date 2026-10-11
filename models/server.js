@@ -40,6 +40,17 @@ class Server {
 
     middlewares() {
 
+        // LOG DE DIAGNÓSTICO: debe ir primero, antes de CORS y del parseo del body
+        this.app.use( (req, res, next) => {
+            if ( req.path.startsWith('/api/') ) {
+                console.log(
+                    `[entrada] ${new Date().toISOString()} ${req.method} ${req.originalUrl} ` +
+                    `ip=${req.ip} xff=${req.get('x-forwarded-for')} ua=${req.get('user-agent')}`
+                );
+            }
+            next();
+        });
+
         // CORS
         this.app.use( cors( {
 			origin: [

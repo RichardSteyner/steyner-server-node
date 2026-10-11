@@ -12,7 +12,6 @@ const login = async(req, res = response) => {
     const { correo, password } = req.body;
 
     try {
-        console.log('Login request received for server: ', `${req.headers.get('host')} ${req.headers.get('server')}`);
         // Verificar si el email existe
         const usuario = await Usuario.findOne({ correo });
         if ( !usuario ) {
