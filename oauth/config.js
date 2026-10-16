@@ -80,11 +80,29 @@ if (publicJwk.crv !== 'P-256') {
     throw new Error('[oauth] OAUTH_PRIVATE_KEY debe ser una clave EC P-256 (ES256)');
 }
 
+const publicKeyPem = crypto.createPublicKey(privateKeyObj).export({ type: 'spki', format: 'pem' });
+
 // kid = huella de la clave pública (RFC 7638). Debe coincidir con el que genera scripts/generate-oauth-key.js
 const kid = crypto
     .createHash('sha256')
     .update(JSON.stringify({ crv: publicJwk.crv, kty: publicJwk.kty, x: publicJwk.x, y: publicJwk.y }))
     .digest('base64url');
+
+// Intercambio de tokens (RFC 8693): el MCP cambia el token OAuth del usuario por uno de vida corta
+// emitido PARA EL BACKEND, con la identidad de ese usuario. Solo se habilita si hay secreto configurado.
+const exchangeSecret = (process.env.OAUTH_EXCHANGE_CLIENT_SECRET || '').trim();
+if (exchangeSecret && exchangeSecret.length < 32) {
+    throw new Error('[oauth] OAUTH_EXCHANGE_CLIENT_SECRET debe tener al menos 32 caracteres');
+}
+const exchange = {
+    enabled: Boolean(exchangeSecret),
+    clientId: (process.env.OAUTH_EXCHANGE_CLIENT_ID || 'mcp-resource-server').trim(),
+    clientSecret: exchangeSecret,
+    // "aud" de los tokens intercambiados: identifica a la API del backend (no al MCP).
+    audience: (process.env.OAUTH_BACKEND_AUDIENCE || `${issuer}/api`).trim(),
+    scope: 'logs',
+    ttlSeconds: intEnv('OAUTH_EXCHANGE_TTL_SECONDS', 300, 60, 900) // 5 min por defecto
+};
 
 module.exports = {
     issuer,
@@ -92,7 +110,9 @@ module.exports = {
     allowedEmails,
     extraRedirectUris,
     privateKeyPem,
+    publicKeyPem,
     kid,
+    exchange,
     jwks: { keys: [{ ...publicJwk, kid, use: 'sig', alg: 'ES256' }] },
     accessTtlSeconds: intEnv('OAUTH_ACCESS_TTL_SECONDS', 1800, 300, 3600),       // 30 min por defecto
     refreshTtlSeconds: intEnv('OAUTH_REFRESH_TTL_SECONDS', 2592000, 3600, 7776000) // 30 días por defecto

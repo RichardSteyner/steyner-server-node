@@ -10,6 +10,7 @@ const Usuario = require('../models/usuario');
 const { OAuthClient, OAuthRequest, OAuthCode, OAuthRefresh } = require('../models/oauth');
 const cfg = require('./config');
 const h = require('./helpers');
+const { handleTokenExchange, TOKEN_EXCHANGE_GRANT } = require('./exchange');
 
 const router = express.Router();
 
@@ -304,9 +305,13 @@ const sendTokens = (res, tokens) => {
 
 router.post('/oauth/token', publicCors, tokenLimiter, formParser, wrap(async (req, res) => {
     const body = req.body || {};
-    const grantType = h.str(body.grant_type, 50);
-    const clientId = h.str(body.client_id, 200);
+    const grantType = h.str(body.grant_type, 100);
     if (!grantType) return h.jsonError(res, 400, 'invalid_request', 'Falta grant_type');
+
+    // Intercambio de tokens: el cliente (el MCP) se autentica con secreto, no como cliente público.
+    if (grantType === TOKEN_EXCHANGE_GRANT) return handleTokenExchange(req, res);
+
+    const clientId = h.str(body.client_id, 200);
     if (!clientId) return h.jsonError(res, 400, 'invalid_request', 'Falta client_id');
 
     const client = await OAuthClient.findOne({ clientId }).lean();

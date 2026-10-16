@@ -219,6 +219,7 @@ module.exports = {
     esc,
     escapeRegExp,
     pkceMatches,
+    safeEqual,
     DUMMY_HASH,
     isAllowedRedirectUri,
     redirectUriMatches,
