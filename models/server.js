@@ -9,6 +9,10 @@ class Server {
 
     constructor() {
         this.app  = express();
+
+        this.app.set('trust proxy', 3);   // Render + Cloudflare; comprueba que [entrada] muestre tu IP real en ip=
+        this.app.disable('x-powered-by');
+
         this.port = process.env.PORT;
 
         this.paths = {
@@ -50,6 +54,10 @@ class Server {
             }
             next();
         });
+
+        // Router de OAuth 2.1 (si está habilitado)
+        const oauthRouter = require('../oauth');
+        if (oauthRouter) this.app.use(oauthRouter);
 
         // CORS
         this.app.use( cors( {
