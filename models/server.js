@@ -46,7 +46,7 @@ class Server {
 
         // LOG DE DIAGNÓSTICO: debe ir primero, antes de CORS y del parseo del body
         this.app.use( (req, res, next) => {
-            if ( req.path.startsWith('/api/') ) {
+            if ( req.path.startsWith('/api/') || req.path.startsWith('/oauth/') ) {
                 console.log(
                     `[entrada] ${new Date().toISOString()} ${req.method} ${req.originalUrl} ` +
                     `ip=${req.ip} xff=${req.get('x-forwarded-for')} ua=${req.get('user-agent')}`
