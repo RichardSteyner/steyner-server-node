@@ -349,6 +349,7 @@ router.post('/oauth/token', publicCors, tokenLimiter, formParser, wrap(async (re
         }
 
         await touchClient(clientId);
+        console.log(`[oauth] tokens emitidos grant=authorization_code client=${clientId} user=${codeDoc.userId}`);
         return sendTokens(res, await issueTokens({
             userId: codeDoc.userId,
             clientId,
@@ -391,6 +392,7 @@ router.post('/oauth/token', publicCors, tokenLimiter, formParser, wrap(async (re
         }
 
         await touchClient(clientId);
+        console.log(`[oauth] tokens emitidos grant=refresh_token client=${clientId} user=${doc.userId}`);
         return sendTokens(res, await issueTokens({
             userId: doc.userId,
             clientId,
