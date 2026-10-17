@@ -114,6 +114,6 @@ module.exports = {
     kid,
     exchange,
     jwks: { keys: [{ ...publicJwk, kid, use: 'sig', alg: 'ES256' }] },
-    accessTtlSeconds: intEnv('OAUTH_ACCESS_TTL_SECONDS', 1800, 300, 3600),       // 30 min por defecto
+    accessTtlSeconds: intEnv('OAUTH_ACCESS_TTL_SECONDS', 1800, 300, 86400),      // 30 min por defecto (máx. 24 h)
     refreshTtlSeconds: intEnv('OAUTH_REFRESH_TTL_SECONDS', 2592000, 3600, 7776000) // 30 días por defecto
 };

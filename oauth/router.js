@@ -303,6 +303,11 @@ const sendTokens = (res, tokens) => {
     return res.json(tokens);
 };
 
+// Renueva la vida del cliente registrado con cada emisión de tokens (autorizar O refrescar).
+// Sin esto, un cliente usado a diario por refresh caducaría a los 30 días de la ÚLTIMA autorización.
+const touchClient = (clientId) =>
+    OAuthClient.updateOne({ clientId }, { $set: { expireAt: new Date(Date.now() + CLIENT_TTL_MS) } });
+
 router.post('/oauth/token', publicCors, tokenLimiter, formParser, wrap(async (req, res) => {
     const body = req.body || {};
     const grantType = h.str(body.grant_type, 100);
@@ -343,6 +348,7 @@ router.post('/oauth/token', publicCors, tokenLimiter, formParser, wrap(async (re
             return h.jsonError(res, 400, 'invalid_grant', 'Código inválido, caducado o verificación PKCE fallida');
         }
 
+        await touchClient(clientId);
         return sendTokens(res, await issueTokens({
             userId: codeDoc.userId,
             clientId,
@@ -384,6 +390,7 @@ router.post('/oauth/token', publicCors, tokenLimiter, formParser, wrap(async (re
             return h.jsonError(res, 400, 'invalid_grant', 'La cuenta ya no está autorizada');
         }
 
+        await touchClient(clientId);
         return sendTokens(res, await issueTokens({
             userId: doc.userId,
             clientId,
